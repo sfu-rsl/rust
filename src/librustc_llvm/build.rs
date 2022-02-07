@@ -104,8 +104,16 @@ fn main() {
         optional_components.push("riscv");
     }
 
-    let required_components =
-        &["ipo", "bitreader", "bitwriter", "linker", "asmparser", "lto", "instrumentation"];
+    let required_components = &[
+        "ipo",
+        "bitreader",
+        "bitwriter",
+        "linker",
+        "asmparser",
+        "lto",
+        "instrumentation",
+        "symboliccompiler"
+    ];
 
     let components = output(Command::new(&llvm_config).arg("--components"));
     let mut components = components.split_whitespace().collect::<Vec<_>>();

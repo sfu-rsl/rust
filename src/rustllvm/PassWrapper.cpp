@@ -66,6 +66,7 @@ extern "C" void LLVMInitializePasses() {
   initializeInstCombine(Registry);
   initializeInstrumentation(Registry);
   initializeTarget(Registry);
+  initializeSymbolicCompiler(Registry);
 }
 
 extern "C" void LLVMTimeTraceProfilerInitialize() {
