@@ -41,7 +41,8 @@ fn main() {
     // determine the version of the compiler, the real compiler needs to be
     // used. Currently, these two states are differentiated based on whether
     // --target and -vV is/isn't passed.
-    let (rustc, libdir) = if target.is_none() && version.is_none() {
+    let rustc_snapshot = target.is_none() && version.is_none();
+    let (rustc, libdir) = if rustc_snapshot {
         ("RUSTC_SNAPSHOT", "RUSTC_SNAPSHOT_LIBDIR")
     } else {
         ("RUSTC_REAL", "RUSTC_LIBDIR")
@@ -159,6 +160,23 @@ fn main() {
         }
     }
 
+    // Invoking the symcc pass requires to be in the final stage,
+    // since symcc may be not yet available in too early stages.
+    if env::var("RUSTC_IS_FINAL_STAGE").is_ok() {
+        let path_symruntime = "/symcc_build/SymRuntime-prefix/src/SymRuntime-build"; // TODO: this path has to be generalized depending on the actual location where the runtime has been compiled
+        // Note that the final stage may still use the stage0 compiler
+        // (which may not come with symcc).
+        if !rustc_snapshot {
+            // TODO: Note that the compilation is failing when we try
+            // to move the maximum of (outer) instructions towards
+            // inside this bloc.
+            cmd.arg("-C").arg("passes=symcc");
+        }
+        cmd.arg("-L").arg(path_symruntime);
+        cmd.arg("-l").arg("SymRuntime");
+        cmd.arg(&format!("-Clink-arg={}", &format!("-Wl,-rpath,{}", path_symruntime)));
+    }
+    
     let is_test = args.iter().any(|a| a == "--test");
     if verbose > 2 {
         let rust_env_vars =
