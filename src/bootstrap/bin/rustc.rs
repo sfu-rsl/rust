@@ -170,7 +170,7 @@ fn main() {
     // Invoking the symcc pass requires to be in the final stage,
     // since symcc may be not yet available in too early stages.
     if env::var("RUSTC_IS_FINAL_STAGE").is_ok() {
-        let path_symruntime = "/symcc_build/SymRuntime-prefix/src/SymRuntime-build"; // TODO: this path has to be generalized depending on the actual location where the runtime has been compiled
+        let path_symruntime = env::var("SYMCC_RUNTIME_DIR").expect("SYMCC_RUNTIME_DIR was not set"); // TODO: this path has to be generalized without environment variable (following the static compilation of the symcc runtime)
         // Note that the final stage may still use the stage0 compiler
         // (which may not come with symcc).
         if !rustc_snapshot {
@@ -179,7 +179,7 @@ fn main() {
             // inside this bloc.
             cmd.arg("-C").arg("passes=symcc");
         }
-        cmd.arg("-L").arg(path_symruntime);
+        cmd.arg("-L").arg(&path_symruntime);
         cmd.arg("-l").arg("SymRuntime");
         cmd.arg(&format!("-Clink-arg={}", &format!("-Wl,-rpath,{}", path_symruntime)));
     }
