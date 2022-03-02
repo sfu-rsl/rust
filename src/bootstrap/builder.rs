@@ -1291,6 +1291,10 @@ impl<'a> Builder<'a> {
 
         cargo.env("RUSTC_VERBOSE", self.verbosity.to_string());
 
+        if compiler.is_final_stage(self) {
+            cargo.env("RUSTC_IS_FINAL_STAGE", "1");
+        }
+
         if source_type == SourceType::InTree {
             let mut lint_flags = Vec::new();
             // When extending this list, add the new lints to the RUSTFLAGS of the
