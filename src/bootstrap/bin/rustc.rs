@@ -147,9 +147,9 @@ fn main() {
             // to move the maximum of (outer) instructions towards
             // inside this bloc.
             cmd.arg("-C").arg("passes=symcc");
+            cmd.arg("-l").arg("SymRuntime");
         }
         cmd.arg("-L").arg(&path_symruntime);
-        cmd.arg("-l").arg("SymRuntime");
         cmd.arg(&format!("-Clink-arg={}", &format!("-Wl,-rpath,{}", path_symruntime)));
     }
     
