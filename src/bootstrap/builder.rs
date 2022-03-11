@@ -1296,7 +1296,8 @@ impl<'a> Builder<'a> {
         if mode == Mode::Std {
             cargo
                 .env("RUSTC_SNAPSHOT", &self.initial_rustc)
-                .env("RUSTC_SNAPSHOT_LIBDIR", self.rustc_snapshot_libdir());
+                .env("RUSTC_SNAPSHOT_LIBDIR", self.rustc_snapshot_libdir())
+                .env("RUSTC_MODE_STD", "1");
         } else {
             cargo
                 .env("RUSTC_SNAPSHOT", self.rustc(compiler))
