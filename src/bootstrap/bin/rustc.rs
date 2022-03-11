@@ -139,19 +139,17 @@ fn main() {
         cmd.arg("-Z").arg("force-unstable-if-unmarked");
     }
 
-    // Invoking the symcc pass requires to be in the final stage,
-    // since symcc may be not yet available in too early stages.
-    if env::var("RUSTC_IS_FINAL_STAGE").is_ok() {
+    // Invoking the symcc pass can be done anywhere except at stage0,
+    // since the stage0 compiler may not come with the symcc pass.
+    // Note that ulterior stages (after stage0) may still explicitly
+    // use the stage0 compiler, e.g. when compiling the standard
+    // library (in this case, one has to make sure that symcc is not
+    // invoked).
+    if env::var("RUSTC_IS_FINAL_STAGE").is_ok()
+        && if env::var("RUSTC_MODE_STD").is_ok() { !rustc_snapshot } else { true } {
         let path_symruntime = env::var("SYMCC_RUNTIME_DIR").expect("SYMCC_RUNTIME_DIR was not set"); // TODO: this path has to be generalized without environment variable (following the static compilation of the symcc runtime)
-        // Note that the final stage may still use the stage0 compiler
-        // (which may not come with symcc).
-        if !rustc_snapshot {
-            // TODO: Note that the compilation is failing when we try
-            // to move the maximum of (outer) instructions towards
-            // inside this bloc.
-            cmd.arg("-C").arg("passes=symcc");
-            cmd.arg("-l").arg("SymRuntime");
-        }
+        cmd.arg("-C").arg("passes=symcc");
+        cmd.arg("-l").arg("SymRuntime");
         cmd.arg("-L").arg(&path_symruntime);
         cmd.arg(&format!("-Clink-arg={}", &format!("-Wl,-rpath,{}", path_symruntime)));
     }
