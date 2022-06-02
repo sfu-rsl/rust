@@ -166,7 +166,20 @@ impl Step for Llvm {
             .define("LLVM_ENABLE_Z3_SOLVER", "OFF")
             .define("LLVM_PARALLEL_COMPILE_JOBS", builder.jobs().to_string())
             .define("LLVM_TARGET_ARCH", target.split('-').next().unwrap())
-            .define("LLVM_DEFAULT_TARGET_TRIPLE", target);
+            .define("LLVM_DEFAULT_TARGET_TRIPLE", target)
+            .define("CMAKE_CXX_STANDARD", "17")
+            //.define("LLVM_DIR", builder.src.join("src/llvm-project/llvm/cmake")) // TODO: to be added once the apt-installation of llvm-dev and llvm-tools becomes unnecessary while compiling SymCC/runtime (see the respective field in src/llvm-project/symcc/CMakeLists.txt )
+            .define("LLVM_EXTERNAL_PROJECTS", "symcc")
+            .define("LLVM_EXTERNAL_SYMCC_SOURCE_DIR", builder.src.join("src/llvm-project/symcc"))
+            .define("Z3_TRUST_SYSTEM_VERSION", "on");
+        
+        if let Ok(qsym_backend) = env::var("SYMRUSTC_QSYM_BACKEND") {
+            cfg.define("QSYM_BACKEND", qsym_backend);
+        }
+        
+        if let Ok(llvm_version_force) = env::var("SYMRUSTC_LLVM_VERSION") {
+            cfg.define("LLVM_VERSION_FORCE", llvm_version_force);
+        }
 
         if !target.contains("netbsd") {
             cfg.define("LLVM_ENABLE_ZLIB", "ON");
