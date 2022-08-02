@@ -43,6 +43,7 @@ exclude = [
   "src/test/rustdoc-gui",
   # HACK(eddyb) This hardcodes the fact that our CI uses `/checkout/obj`.
   "obj",
+  "src/tools/libafl",
   # The `x` binary is a thin wrapper that calls `x.py`, which initializes
   # submodules, before which workspace members cannot be invoked because
   # not all `Cargo.toml` files are available, so we exclude the `x` binary,
