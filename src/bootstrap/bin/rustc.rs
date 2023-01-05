@@ -163,7 +163,10 @@ fn main() {
     if env::var("RUSTC_IS_FINAL_STAGE").is_ok()
         && if env::var("RUSTC_MODE_STD").is_ok() { !rustc_snapshot } else { true } {
         let path_symruntime = env::var("SYMCC_RUNTIME_DIR").expect("SYMCC_RUNTIME_DIR was not set"); // TODO: this path has to be generalized without environment variable (following the static compilation of the symcc runtime)
-        cmd.arg("-C").arg("passes=symcc");
+
+        // Warning: The order given to "passes" has an importance:
+        // https://github.com/llvm/llvm-project/blob/6cb2ab2c60900b90e3add1de81feac38327fba6d/llvm/lib/Passes/PassBuilder.cpp#L740
+        cmd.arg("-C").arg("passes=symcc-module symcc-function");
         cmd.arg("-l").arg("SymRuntime");
         cmd.arg("-L").arg(&path_symruntime);
         cmd.arg(&format!("-Clink-arg={}", &format!("-Wl,-rpath,{}", path_symruntime)));
